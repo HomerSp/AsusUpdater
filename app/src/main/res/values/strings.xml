@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">ASUS Updater</string>
+
+    <string name="notification_channel_updates">System updates</string>
+    <string name="notification_channel_updates_desc">Alert about system updates</string>
+
+    <string name="system_update">System update</string>
+    <string name="found_update">Found new update %1$s!</string>
+    <string name="found_update_expand">Found new update %1$s!\nSize: %2$sMiB</string>
+    <string name="download">Download</string>
+    <string name="ignore">Ignore</string>
+
+    <string name="downloading_update">Downloading update %1$s</string>
+
+    <string name="reboot_update">Update %1$s downloaded, reboot to install!</string>
+    <string name="reboot_update_expand">Update %1$s downloaded!\nPlease reboot to install!</string>
+
+    <string name="no_update">Current version\n%1$s\n\n\n<b>No updates</b>\n\n\nLast check: %2$s</string>
+    <string name="never">Never</string>
+
+    <string name="check_update">Check for updates</string>
+    <string name="install_update">Download update</string>
+    <string name="update_text"><b>Version: %1$s</b>\n\n%2$s\n\n<b>Size: %3$sMiB</b></string>
+</resources>
