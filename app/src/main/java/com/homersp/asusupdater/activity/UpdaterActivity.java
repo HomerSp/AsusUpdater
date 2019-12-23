@@ -22,6 +22,7 @@ import com.homersp.asusupdater.Log;
 import com.homersp.asusupdater.R;
 import com.homersp.asusupdater.UpdaterApplication;
 import com.homersp.asusupdater.service.UpdaterService;
+import com.homersp.asusupdater.updater.UpdaterFileUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -36,7 +37,6 @@ public class UpdaterActivity extends Activity {
     private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             updateView();
         }
     };
@@ -123,6 +123,12 @@ public class UpdaterActivity extends Activity {
         Button checkButton = findViewById(R.id.check_update);
         checkButton.setText(prefs.contains("url") ? R.string.install_update : R.string.check_update);
         checkButton.setEnabled(!prefs.contains("download_id"));
+
+        if (UpdaterFileUtils.updateFileExists(this)) {
+            checkButton.setVisibility(View.GONE);
+        } else {
+            checkButton.setVisibility(View.VISIBLE);
+        }
     }
 
     private String getDescription()

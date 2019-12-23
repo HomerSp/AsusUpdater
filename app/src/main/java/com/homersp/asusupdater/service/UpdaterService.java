@@ -246,6 +246,7 @@ public class UpdaterService extends IntentService {
         prefs.edit().putLong("download_id", dlid).apply();
 
         updateNotification();
+        notifyActivity();
     }
 
     private void installUpdate()
@@ -263,6 +264,7 @@ public class UpdaterService extends IntentService {
         UpdaterFileUtils.moveUpdaterFile(this);
 
         updateNotification();
+        notifyActivity();
     }
 
     private void doCheckUpdate()
