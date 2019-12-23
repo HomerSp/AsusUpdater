@@ -214,6 +214,10 @@ public class UpdaterService extends IntentService {
     private void downloadUpdate()
     {
         SharedPreferences prefs = getSharedPreferences("update", MODE_PRIVATE);
+        if (prefs.contains("download_id")) {
+            Log.w(TAG, "Download already in progress, skipping...");
+            return;
+        }
 
         Uri pkgUri = Uri.parse(prefs.getString("url", ""));
         String filename =  pkgUri.getLastPathSegment();
@@ -233,7 +237,7 @@ public class UpdaterService extends IntentService {
         }
 
         long dlid = mDownloadManager.enqueue(new DownloadManager.Request(Uri.parse(prefs.getString("url", "")))
-                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI)
+                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
                 .setAllowedOverRoaming(false)
                 .setTitle(filename)
                 .setDescription("System update")

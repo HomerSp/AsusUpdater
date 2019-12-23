@@ -15,6 +15,10 @@ public class Log {
         android.util.Log.i(tag, msg);
     }
 
+    public static void w(String tag, String msg) {
+        android.util.Log.w(tag, msg);
+    }
+
     public static void e(String tag, String msg) {
         android.util.Log.e(tag, msg);
     }

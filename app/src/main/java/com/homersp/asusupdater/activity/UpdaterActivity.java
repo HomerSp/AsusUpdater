@@ -122,6 +122,7 @@ public class UpdaterActivity extends Activity {
 
         Button checkButton = findViewById(R.id.check_update);
         checkButton.setText(prefs.contains("url") ? R.string.install_update : R.string.check_update);
+        checkButton.setEnabled(!prefs.contains("download_id"));
     }
 
     private String getDescription()
