@@ -8,7 +8,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.net.Uri;
 
 
@@ -91,13 +90,6 @@ public class UpdaterService extends IntentService {
             if (!current.equals(BuildCompat.CSC_VERSION)) {
                 Log.d(TAG, "Purging update");
                 UpdaterFileUtils.removeUpdateFile(this);
-
-                prefs.edit().remove("name")
-                        .remove("url")
-                        .remove("size")
-                        .remove("ignore")
-                        .remove("download_id")
-                        .apply();
 
                 notifyActivity();
             }
@@ -269,17 +261,18 @@ public class UpdaterService extends IntentService {
 
     private void doCheckUpdate()
     {
-        Log.i(TAG, "Checking for updates to " + BuildCompat.CSC_VERSION + "...");
-
         SharedPreferences prefs = getSharedPreferences("update", MODE_PRIVATE);
-        prefs.edit().putBoolean("checking", true).apply();
 
-        String imeiStr = BuildCompat.WW_IMEI_DEFAULT;
-        if (prefs.contains("imei")) {
-            imeiStr = prefs.getString("imei", "");
+        String chan = (prefs.getBoolean("beta", false) ? "Beta" : "Stable");
+        if (BuildCompat.haveCustomImei(this)) {
+            chan = "Custom";
         }
 
-        String imei = new String(Base64.getDecoder().decode(imeiStr), StandardCharsets.UTF_8);
+        Log.i(TAG, "Checking for updates to " + BuildCompat.CSC_VERSION + " on " + chan + "...");
+
+        prefs.edit().putBoolean("checking", true).apply();
+
+        String imei = BuildCompat.getImei(this);
 
         UpdaterPackage pkg = null;
         AsusDM dm = new AsusDM(this, imei);

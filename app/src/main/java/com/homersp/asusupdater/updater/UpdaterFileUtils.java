@@ -50,6 +50,14 @@ public class UpdaterFileUtils {
 
     public static boolean removeUpdateFile(Context context)
     {
+        SharedPreferences prefs = context.getSharedPreferences("update", MODE_PRIVATE);
+        prefs.edit().remove("name")
+                .remove("url")
+                .remove("size")
+                .remove("ignore")
+                .remove("download_id")
+                .apply();
+
         return new File(Environment.getExternalStorageDirectory(), getUpdateFileName(context)).delete();
     }
 

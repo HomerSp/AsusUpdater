@@ -21,4 +21,10 @@
     <string name="check_update">Check for updates</string>
     <string name="install_update">Download update</string>
     <string name="update_text"><b>Version: %1$s</b>\n\n%2$s\n\n<b>Size: %3$sMiB</b></string>
+
+    <string name="channel_stable">Stable channel</string>
+    <string name="channel_beta">Beta channel</string>
+
+    <string name="custom_imei">Custom IMEI</string>
+    <string name="input_imei">Input IMEI</string>
 </resources>

@@ -7,15 +7,19 @@
     android:orientation="vertical"
     tools:context=".activity.UpdaterActivity">
 
-    <TextView
-        android:id="@+id/update_text"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:gravity="center"
-        android:layout_weight="1"
-        android:padding="16.0dp"
-        android:text="@string/no_update"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
+        android:layout_weight="1">
+        <TextView
+            android:id="@+id/update_text"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:padding="16.0dp"
+            android:text="@string/no_update"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+    </ScrollView>
 
     <RelativeLayout
         android:layout_width="match_parent"

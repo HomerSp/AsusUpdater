@@ -1,7 +1,7 @@
 package com.homersp.asusupdater;
 
 public class Log {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = BuildConfig.DEBUG;
 
     public static void d(String tag, String msg) {
         if (!DEBUG) {

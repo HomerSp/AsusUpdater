@@ -2,19 +2,26 @@ package com.homersp.asusupdater.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.format.DateFormat;
 
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.homersp.asusupdater.BuildCompat;
@@ -26,10 +33,11 @@ import com.homersp.asusupdater.updater.UpdaterFileUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Locale;
 
-public class UpdaterActivity extends Activity {
+public class UpdaterActivity extends AppCompatActivity {
     private static final String TAG = "AsusUpdater." + UpdaterActivity.class.getSimpleName();
 
     public static final String ACTION_SHOW = "com.homersp.asusupdater.SHOW_UPDATER";
@@ -96,6 +104,55 @@ public class UpdaterActivity extends Activity {
         super.onResume();
 
         updateView();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_imei: {
+                inputCustomImei();
+                break;
+            }
+            case R.id.action_beta: {
+                UpdaterFileUtils.removeUpdateFile(this);
+                updateView();
+
+                final SharedPreferences prefs = getSharedPreferences("update", MODE_PRIVATE);
+                prefs.edit().putBoolean("beta", !prefs.getBoolean("beta", false)).apply();
+
+                invalidateOptionsMenu();
+                break;
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_beta);
+        if (BuildCompat.haveBetaImei()) {
+            item.setVisible(true);
+
+            final SharedPreferences prefs = getSharedPreferences("update", MODE_PRIVATE);
+            if (prefs.getBoolean("beta", false)) {
+                item.setTitle(R.string.channel_stable);
+            } else {
+                item.setTitle(R.string.channel_beta);
+            }
+        } else {
+            item.setVisible(false);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     private void updateView()
@@ -166,5 +223,38 @@ public class UpdaterActivity extends Activity {
         intent.setAction(UpdaterService.ACTION_CHECK);
         intent.putExtra("force", true);
         startService(intent);
+    }
+
+    private void inputCustomImei() {
+        final SharedPreferences prefs = getSharedPreferences("update", MODE_PRIVATE);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(UpdaterActivity.this);
+        builder.setTitle(R.string.input_imei);
+
+        final EditText input = new EditText(UpdaterActivity.this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(new String(Base64.getDecoder().decode(prefs.getString("imei", ""))));
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String text = input.getText().toString();
+                if (text.isEmpty()) {
+                    prefs.edit().remove("imei").apply();
+                } else {
+                    prefs.edit().putString("imei", Base64.getEncoder().encodeToString(text.getBytes())).apply();
+                }
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 }

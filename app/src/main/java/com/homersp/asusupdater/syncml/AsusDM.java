@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -59,15 +60,22 @@ public class AsusDM {
         mIMEI = imei;
         reset();
 
-        SharedPreferences prefs = context.getSharedPreferences("syncml", Context.MODE_PRIVATE);
-        if (mIMEI.equals(prefs.getString("imei", ""))) {
-            mSessionID = prefs.getInt("session_id", mSessionID);
-        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(mIMEI.getBytes());
+            String ib64 = Base64.getEncoder().encodeToString(md.digest());
+            SharedPreferences prefs = context.getSharedPreferences("syncml", Context.MODE_PRIVATE);
+            if (ib64.equals(prefs.getString("imei", ""))) {
+                mSessionID = prefs.getInt("session_id", mSessionID);
+            }
 
-        prefs.edit()
-                .putString("imei", mIMEI)
-                .putInt("session_id", mSessionID)
-                .apply();
+            prefs.edit()
+                    .putString("imei", ib64)
+                    .putInt("session_id", mSessionID)
+                    .apply();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
 
         try {
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
