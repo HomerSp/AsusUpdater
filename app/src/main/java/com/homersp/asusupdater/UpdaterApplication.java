@@ -28,11 +28,12 @@ public class UpdaterApplication extends Application {
 
     public static void initAlarm(Context context)
     {
-        Intent intent = new Intent(context, UpdaterService.class);
+        Intent intent = new Intent();
+        intent.setClass(context.getApplicationContext(), UpdaterService.class);
         intent.setAction(UpdaterService.ACTION_CHECK);
 
         // No need to create the alarm if it already exists
-        PendingIntent checkIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_NO_CREATE);
+        PendingIntent checkIntent = PendingIntent.getForegroundService(context.getApplicationContext(), 0, intent, PendingIntent.FLAG_NO_CREATE);
 
         AlarmManager alarmManager = context.getSystemService(AlarmManager.class);
         if (alarmManager != null && checkIntent == null) {
@@ -46,7 +47,7 @@ public class UpdaterApplication extends Application {
 
             Log.i(TAG, "Scheduling next check for " + DateFormat.getTimeFormat(context).format(date));
 
-            PendingIntent alarmIntent = PendingIntent.getService(context, 0, intent, 0);
+            PendingIntent alarmIntent = PendingIntent.getForegroundService(context.getApplicationContext(), 0, intent, 0);
             alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                     date.getTime(),
                     AlarmManager.INTERVAL_HOUR, alarmIntent);
