@@ -302,7 +302,7 @@ public class UpdaterService extends IntentService {
                 }
 
                 break;
-            } catch(IOException e) {
+            } catch(Exception e) {
                 // Ignore
             }
         }
