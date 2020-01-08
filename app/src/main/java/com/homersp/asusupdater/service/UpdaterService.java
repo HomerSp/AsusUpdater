@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
-
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -21,14 +20,12 @@ import com.homersp.asusupdater.R;
 import com.homersp.asusupdater.UpdaterApplication;
 import com.homersp.asusupdater.activity.UpdaterActivity;
 import com.homersp.asusupdater.syncml.AsusDM;
-import com.homersp.asusupdater.updater.UpdaterPackage;
 import com.homersp.asusupdater.updater.UpdaterFileUtils;
+import com.homersp.asusupdater.updater.UpdaterPackage;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Locale;
 
 public class UpdaterService extends IntentService {
@@ -244,16 +241,19 @@ public class UpdaterService extends IntentService {
     private void installUpdate()
     {
         SharedPreferences prefs = getSharedPreferences("update", MODE_PRIVATE);
-        if (prefs.contains("download_id")) {
-            prefs.edit().remove("download_id").apply();
-        }
-
-        if (UpdaterFileUtils.updateFileExists(this)) {
-            Log.d(TAG, "Ignoring install update command");
+        if (!prefs.contains("download_id")) {
+            Log.w(TAG, "No download id");
             return;
         }
 
-        UpdaterFileUtils.moveUpdaterFile(this);
+        if (UpdaterFileUtils.updateFileExists(this)) {
+            Log.w(TAG, "Ignoring install update command");
+            return;
+        }
+
+        if (UpdaterFileUtils.moveUpdaterFile(this)) {
+            prefs.edit().remove("download_id").apply();
+        }
 
         updateNotification();
         notifyActivity();

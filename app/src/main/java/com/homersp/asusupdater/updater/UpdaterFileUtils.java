@@ -1,16 +1,17 @@
 package com.homersp.asusupdater.updater;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.DocumentsContract;
 
+import androidx.documentfile.provider.DocumentFile;
 
 import com.homersp.asusupdater.Log;
+import com.homersp.asusupdater.UpdaterApplication;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -21,38 +22,46 @@ public class UpdaterFileUtils {
 
     public static boolean moveUpdaterFile(Context context)
     {
-        SharedPreferences prefs = context.getSharedPreferences("update", MODE_PRIVATE);
-
-        Uri pkgUri = Uri.parse(prefs.getString("url", ""));
-        String name = pkgUri.getLastPathSegment();
-        if (name == null) {
-            Log.e(TAG, "Invalid URI");
+        DocumentFile downloadFile = getDownloadDocument(context);
+        if (downloadFile == null) {
             return false;
         }
 
-        File file = new File(context.getExternalFilesDir(""), name);
-        if (!file.exists()) {
-            Log.e(TAG, "Update file does not exist");
+        DocumentFile parentFile = downloadFile.getParentFile();
+        DocumentFile rootFile = UpdaterApplication.getRootDocument(context);
+        if (parentFile == null || rootFile == null) {
             return false;
         }
 
-        String filename = getUpdateFileName(context);
-        if (!file.renameTo(new File(Environment.getExternalStorageDirectory(), filename))) {
-            Log.e(TAG, "Failed moving update file");
-            return false;
+        try {
+            Uri newUri = DocumentsContract.moveDocument(context.getContentResolver(), downloadFile.getUri(), parentFile.getUri(), rootFile.getUri());
+            if (newUri == null) {
+                return false;
+            }
+
+            return DocumentsContract.renameDocument(context.getContentResolver(), newUri, getUpdateFileName(context)) != null;
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "moveDocument failed", e);
         }
 
-        return UpdaterFileUtils.updateFileExists(context);
+        return false;
     }
 
     public static boolean updateFileExists(Context context)
     {
-        return new File(Environment.getExternalStorageDirectory(), getUpdateFileName(context)).exists();
+        DocumentFile file = UpdaterApplication.getRootDocument(context);
+        return file != null && file.findFile(getUpdateFileName(context)) != null;
     }
 
     public static boolean removeUpdateFile(Context context)
     {
-        if (new File(Environment.getExternalStorageDirectory(), getUpdateFileName(context)).delete()) {
+        DocumentFile file = UpdaterApplication.getRootDocument(context);
+        if (file == null) {
+            return false;
+        }
+
+        file = file.findFile(getUpdateFileName(context));
+        if (file != null && file.delete()) {
             SharedPreferences prefs = context.getSharedPreferences("update", MODE_PRIVATE);
             prefs.edit().remove("name")
                     .remove("url")
@@ -86,5 +95,38 @@ public class UpdaterFileUtils {
         }
 
         return "UL-ASUS_I001_1-ASUS-" + prefs.getString("name", "") + "-" + EXT_VER + "-" + type + ".zip";
+    }
+
+    private static DocumentFile getDownloadDocument(Context context)
+    {
+        File externalFile = context.getExternalFilesDir("");
+        if (externalFile == null) {
+            return null;
+        }
+
+        String dataPath = externalFile.getAbsolutePath();
+        dataPath = dataPath.substring(dataPath.indexOf("Android"));
+
+        String[] split = dataPath.split("/");
+
+        int i = 0;
+        DocumentFile file = UpdaterApplication.getRootDocument(context);
+        while (i < split.length && file != null) {
+            file = file.findFile(split[i]);
+            i++;
+        }
+
+        if (file == null) {
+            return null;
+        }
+
+        SharedPreferences prefs = context.getSharedPreferences("update", MODE_PRIVATE);
+
+        String name = Uri.parse(prefs.getString("url", "")).getLastPathSegment();
+        if (name == null) {
+            return null;
+        }
+
+        return file.findFile(name);
     }
 }

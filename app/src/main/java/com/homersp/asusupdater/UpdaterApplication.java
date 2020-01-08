@@ -6,7 +6,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.UriPermission;
+import android.net.Uri;
 import android.text.format.DateFormat;
+
+import androidx.documentfile.provider.DocumentFile;
 
 import com.homersp.asusupdater.service.UpdaterService;
 
@@ -52,5 +56,23 @@ public class UpdaterApplication extends Application {
                     date.getTime(),
                     AlarmManager.INTERVAL_HOUR, alarmIntent);
         }
+    }
+
+    public static Uri getRootUri(Context context)
+    {
+        Uri checkUri = Uri.parse("content://com.android.externalstorage.documents/tree/" + Uri.encode("primary:"));
+        for (UriPermission perm: context.getContentResolver ().getPersistedUriPermissions()) {
+            if (perm.isWritePermission() && perm.getUri().equals(checkUri)) {
+                return perm.getUri();
+            }
+        }
+
+        return null;
+    }
+
+    public static DocumentFile getRootDocument(Context context)
+    {
+        Uri uri = getRootUri(context);
+        return (uri != null) ? DocumentFile.fromTreeUri(context, uri) : null;
     }
 }

@@ -1,7 +1,6 @@
 package com.homersp.asusupdater.activity;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,10 +9,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.text.InputType;
 import android.text.format.DateFormat;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,6 +39,8 @@ import java.util.Locale;
 
 public class UpdaterActivity extends AppCompatActivity {
     private static final String TAG = "AsusUpdater." + UpdaterActivity.class.getSimpleName();
+
+    private static final int OPEN_DIRECTORY_REQUEST_CODE = 0;
 
     public static final String ACTION_SHOW = "com.homersp.asusupdater.SHOW_UPDATER";
 
@@ -103,6 +105,14 @@ public class UpdaterActivity extends AppCompatActivity {
     {
         super.onResume();
 
+        if (UpdaterApplication.getRootUri(this) == null) {
+            Uri uri = DocumentsContract.buildRootUri("com.android.externalstorage.documents", "primary");
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri);
+            intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
+            startActivityForResult(intent, OPEN_DIRECTORY_REQUEST_CODE);
+        }
+
         updateView();
     }
 
@@ -153,6 +163,22 @@ public class UpdaterActivity extends AppCompatActivity {
         }
 
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
+
+        if (requestCode == OPEN_DIRECTORY_REQUEST_CODE && resultCode == RESULT_OK) {
+            Uri treeUri = resultData.getData();
+            if (treeUri == null) {
+                return;
+            }
+
+            getContentResolver().takePersistableUriPermission(treeUri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
     }
 
     private void updateView()
