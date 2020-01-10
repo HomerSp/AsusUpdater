@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">ASUS 업데이트</string>
+
+    <string name="notification_channel_updates">시스템 업데이트</string>
+    <string name="notification_channel_updates_desc">시스템 업데이트 관련 알림입니다.</string>
+
+    <string name="system_update">시스템 업데이트</string>
+    <string name="found_update">새로운 업데이트 %1$s을(를) 찾았습니다!</string>
+    <string name="found_update_expand">새로운 업데이트 %1$s을(를) 찾았습니다!\n용량: %2$sMiB</string>
+    <string name="download">다운로드</string>
+    <string name="ignore">무시</string>
+
+    <string name="downloading_update">업데이트 %1$s 다운로드 중 </string>
+
+    <string name="reboot_update">업데이트 %1$ 다운로드 완료. 설치하려면 휴대전화를 다시 시작하세요!</string>
+    <string name="reboot_update_expand">업데이트 %1$s 다운로드가 완료되었습니다!\n설치하려면 휴대전화를 다시 시작하세요!</string>
+
+    <string name="no_update">현재 버전\n%1$s\n\n\n<b>업데이트 없음</b>\n\n\n최근 확인: %2$s</string>
+    <string name="never">안 함</string>
+
+    <string name="check_update">업데이트 확인</string>
+    <string name="install_update">업데이트 다운로드</string>
+    <string name="update_text"><b>버전: %1$s</b>\n\n%2$s\n\n<b>용량: %3$sMiB</b></string>
+
+    <string name="channel_stable">안정 채널</string>
+    <string name="channel_beta">베타 채널</string>
+
+    <string name="custom_imei">커스텀 IMEI</string>
+    <string name="input_imei">IMEI 입력</string>
+</resources>
